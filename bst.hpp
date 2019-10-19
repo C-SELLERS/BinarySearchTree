@@ -148,12 +148,12 @@ private:
 public:
   // constructor, empty tree
   BST() {
-
+    *Root = nullptr;
   }
 
   // constructor, tree with root
   explicit BST(const T &RootItem) {
-
+    *Root = *RootItem;
   }
 
   // given an array of length n
@@ -167,16 +167,17 @@ public:
 
   // copy constructor
   BST(const BST<T> &Bst) {
-
+    *Root = *Bst.Root;
   }
 
   // destructor
   virtual ~BST() {
+    //Call destroy
   }
 
   // true if no nodes in BST
   bool isEmpty() const {
-    return true;
+    return (Root == nullptr);
   }
 
   // 0 if empty, 1 if only root, otherwise
@@ -202,6 +203,7 @@ public:
 
   // true if item is in BST
   bool contains(const T &Item) const {
+    //Recursive search, following BST Structure rules
     return true;
   }
 
@@ -225,20 +227,28 @@ public:
   // and then read the array to re-create this tree from scratch
   // so that resulting tree is balanced
   void rebalance() {
+    //Get size of tree
+    //Create array of that size
+    //Copy all items to that array
+    //Balance it (Private method?)
+
   }
 
   // delete all nodes in tree
   void clear() {
+    //Recursive remove?
   }
 
   // trees are equal if they have the same structure
   // AND the same item values at all the nodes
   bool operator==(const BST<T> &Other) const {
+    //Recursive comparison?
     return true;
   }
 
   // not == to each other
   bool operator!=(const BST<T> &Other) const {
+    //Same as above but the opposite.
     return true;
   }
 };
