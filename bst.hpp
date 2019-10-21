@@ -149,14 +149,14 @@ private:
         return Out;
     }
 
-    Node *copyTree(Node *root) {
+    Node *copyTree(Node *root) const {
         if (root == NULL)
             return NULL;
         else {
             Node *temp = new Node;
             temp->Data = root->Data;
-            temp->Left = copyInOrder(root->Left);
-            temp->Right = copyInOrder(root->Right);
+            temp->Left = copyTree(root->Left);
+            temp->Right = copyTree(root->Right);
             return temp;
         }
     }
@@ -165,11 +165,11 @@ private:
         if (root == NULL)
             return NULL;
         {
-            makeEmpty(root->left);
-            makeEmpty(root->right);
+            makeEmpty(root->Left);
+            makeEmpty(root->Right);
             delete root;
         }
-
+        return NULL;
     }
 
     int recursiveCount (Node *root) {
@@ -179,34 +179,61 @@ private:
         return recursiveCount(root->Left) + recursiveCount(root->Right) + 1;
     }
 
+    string inOrder(Node *p) const {
+        string result;
+        if (p != NULL) {
+            if (p->Left) result += inOrder(p->Left);
+            result += p->Data;
+            if (p->Right) result += inOrder(p->Right);
+        } else return result;
+    }
+
+    string preOrder(Node *p) const {
+        string result;
+        if (p != NULL) {
+            result += p->Data;
+            if (p->Left) result += preOrder(p->Left);
+            if (p->Right) result += preOrder(p->Right);
+        } else return result;
+    }
+
+    string postOrder(Node *p) const {
+        string result;
+        if (p != NULL) {
+            if (p->Left) result += postOrder(p->Left);
+            if (p->Right) result += postOrder(p->Right);
+            result += p->Data;
+        } else return result;
+    }
 
 public:
     // Empty constructor
     BST() {
     }
 
-    // Constructor, tree with root
+    // Construct tree with root
     explicit BST(const T &RootItem) {
-        Root = new Node;
-        Root->Data = *RootItem;
+        add(RootItem);
 
     }
 
-    // given an array of length n
-    // create a tree to have all items in that array
-    // with the minimum height (i.e. rebalance)
+    // Construct tree from array
     BST(const T Arr[], int N) {
+        for (auto x : Arr) {
+            add(x);
+        }
 
+        rebalance();
     }
 
-    // copy constructor
+    // Copy constructor
     BST(const BST<T> &Bst) {
-        Root = copyTree(*Bst);
+        Root = copyTree(Bst.Root);
     }
 
     // destructor
     virtual ~BST() {
-        MakeEmpty(Root);
+        makeEmpty(Root);
     }
 
     // true if no nodes in BST
@@ -260,6 +287,7 @@ public:
         else
             parent->Right = newNode;
 
+        return true;
     }
 
     // Remove item, return true if successful
@@ -404,18 +432,21 @@ public:
     // inorder traversal: left-root-right
     // takes a function that takes a single parameter of type T
     void inOrderTraverse(void Visit(const T &Item)) const {
-
+        Visit(inOrder(Root));
     }
+
 
     // preorder traversal: root-left-right
     void preOrderTraverse(void Visit(const T &Item)) const {
-
+        Visit(preOrder(Root));
     }
+
 
     // postorder traversal: left-right-root
     void postOrderTraverse(void Visit(const T &Item)) const {
-
+        Visit(postOrder(Root));
     }
+
 
     // create dynamic array, copy all the items to the array
     // and then read the array to re-create this tree from scratch
@@ -437,14 +468,32 @@ public:
     // trees are equal if they have the same structure
     // AND the same item values at all the nodes
     bool operator==(const BST<T> &Other) const {
-        //Recursive comparison?
-        return true;
+        return compare(Other.Root);
     }
 
     // not == to each other
     bool operator!=(const BST<T> &Other) const {
-        //Same as above but the opposite.
-        return true;
+        return !compare(Other.Root);
+    }
+
+    bool compare(Node *root) const {
+        return recursiveCompare(Root, root);
+    }
+
+    bool recursiveCompare(Node *node1, Node *node2) const {
+        bool result;
+
+        if (node1 == NULL && node2 == NULL)
+            return true;
+
+        if (node1->Data != node2->Data) {
+            return false;
+        }
+
+        result = recursiveCompare(node1->Left, node2->Left)
+                 && recursiveCompare(node1->Right, node2->Right);
+
+        return result;
     }
 };
 #endif  // BST_HPP

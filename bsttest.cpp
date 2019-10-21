@@ -163,7 +163,17 @@ void testPisan03() {
 // Testing samplefunctionality
 void testSample01() {
   cout << "Starting testSample01" << endl;
-  // assert(true);
+  BST<string> B1;
+  BST<string> B2;
+  for (auto &S : vector<string>{"c", "a", "f", "g", "x"})
+    B1.add(S);
+
+  for (auto &S : vector<string>{"c", "f", "a", "g", "x"})
+    B2.add(S);
+
+  assert()
+
+
   cout << "Ending testSample01" << endl;
 }
 
