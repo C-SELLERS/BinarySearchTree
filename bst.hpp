@@ -24,11 +24,11 @@ using namespace std;
 template<class T>
 class BST {
     // display BST tree in a human-readable format
-    friend ostream &operator<<(ostream &Out, const BST &Bst) {
-        Bst.printSideways(Out, Bst.Root);
-        Out << endl;
-        Bst.printVertical(Out, Bst.Root);
-        return Out;
+    friend ostream &operator<<(ostream &out, const BST &bst) {
+        bst.printSideways(out, bst.Root);
+        out << endl;
+        bst.printVertical(out, bst.Root);
+        return out;
     }
 
 private:
@@ -46,12 +46,12 @@ private:
     Node *Root{nullptr};
 
     // height of a Node, nullptr is 0, Root is 1, static, no access to 'this'
-    static int getHeight(const Node *N) {
-        if (N == NULL)
+    static int getHeight(const Node *n) {
+        if (n == NULL)
             return 0;
-        else {
-            return max((getHeight(N->Left)+1), getHeight(N->Right)+1);
-        }
+
+        return max((getHeight(n->Left) + 1), getHeight(n->Right) + 1);
+
     }
 
     /**
@@ -64,29 +64,29 @@ private:
               1
                   3
      */
-    static ostream &printSideways(ostream &Out, const Node *Curr, int Level = 0) {
-        const static char SP = ' ';
-        const static int ReadabilitySpaces = 4;
-        if (!Curr)
-            return Out;
-        printSideways(Out, Curr->Right, ++Level);
-        Out << setfill(SP) << setw(Level * ReadabilitySpaces) << SP;
-        Out << Curr->Data << endl;
-        printSideways(Out, Curr->Left, Level);
-        return Out;
+    static ostream &printSideways(ostream &out, const Node *curr, int level = 0) {
+        const static char sp = ' ';
+        const static int readabilitySpaces = 4;
+        if (!curr)
+            return out;
+        printSideways(out, curr->Right, ++level);
+        out << setfill(sp) << setw(level * readabilitySpaces) << sp;
+        out << curr->Data << endl;
+        printSideways(out, curr->Left, level);
+        return out;
     }
 
-    static ostream &centeredPrint(ostream &Out, int Space,
-                                  const string &Str, char FillChar = ' ') {
-        auto StrL = static_cast<int>(Str.length());
-        int Extra = (Space - StrL) / 2;
-        if (Extra > 0) {
-            Out << setfill(FillChar) << setw(Extra + StrL) << Str;
-            Out << setfill(FillChar) << setw(Space - Extra - StrL) << FillChar;
+    static ostream &centeredPrint(ostream &out, int space,
+                                  const string &str, char fillChar = ' ') {
+        auto strL = static_cast<int>(str.length());
+        int extra = (space - strL) / 2;
+        if (extra > 0) {
+            out << setfill(fillChar) << setw(extra + strL) << str;
+            out << setfill(fillChar) << setw(space - extra - strL) << fillChar;
         } else {
-            Out << setfill(FillChar) << setw(Space) << Str;
+            out << setfill(fillChar) << setw(space) << str;
         }
-        return Out;
+        return out;
     }
 
     /**
@@ -97,68 +97,67 @@ private:
     3     4     5     6
      *
     **/
-    static ostream &printTreeLevel(ostream &Out, queue<const Node *> &Q,
-                                   int Width, int Depth, int MaxDepth) {
-        const static char SP = ' ';
-        const static char UND = '_';
-        int Nodes = 0;
-        int MaxN = pow(2, Depth - 1);
-        int SpaceForEachItem = Width * pow(2, MaxDepth - 1) / MaxN; // NOLINT
-        string
-                Bigspace = string(static_cast<uint64_t>(SpaceForEachItem / 4), SP);
-        while (Nodes++ < MaxN) {
-            const Node *Tp = Q.front();
-            Node *TpL = nullptr;
-            Node *TpR = nullptr;
-            Q.pop();
-            string Label = "N";
-            if (Tp) {
-                stringstream Ss;
-                Ss << Tp->Data;
-                Label = Ss.str();
-                TpL = Tp->Left;
-                TpR = Tp->Right;
+    static ostream &printTreeLevel(ostream &out, queue<const Node *> &q,
+                                   int width, int depth, int maxDepth) {
+        const static char sp = ' ';
+        const static char und = '_';
+        int nodes = 0;
+        int maxN = pow(2, depth - 1); // NOLINT
+        int SpaceForEachItem = width * pow(2, maxDepth - 1) / maxN; // NOLINT
+        string bigSpace
+                = string(static_cast<uint64_t>(SpaceForEachItem / 4), sp); // NOLINT
+        while (nodes++ < maxN) {
+            const Node *tp = q.front();
+            Node *tpL = nullptr;
+            Node *tpR = nullptr;
+            q.pop();
+            string label = "N";
+            if (tp) {
+                stringstream ss;
+                ss << tp->Data;
+                label = ss.str();
+                tpL = tp->Left;
+                tpR = tp->Right;
             }
-            char Filler = Depth == MaxDepth ? SP : UND;
-            if (Depth == MaxDepth) {
-                centeredPrint(Out, SpaceForEachItem, Label, Filler);
+            char filler = depth == maxDepth ? sp : und;
+            if (depth == maxDepth) {
+                centeredPrint(out, SpaceForEachItem, label, filler);
             } else {
-                Out << Bigspace;
-                centeredPrint(Out, SpaceForEachItem / 2, Label, Filler);
-                Out << Bigspace;
-                Q.push(TpL);
-                Q.push(TpR);
+                out << bigSpace;
+                centeredPrint(out, SpaceForEachItem / 2, label, filler);
+                out << bigSpace;
+                q.push(tpL);
+                q.push(tpR);
             }
         }
-        Out << endl;
-        return Out;
+        out << endl;
+        return out;
     }
 
     // helper function for displaying tree sideways, works recursively
-    static ostream &printVertical(ostream &Out, Node *Curr) {
-        const static int WIDTH = 6;  // must be even
-        if (!Curr)
-            return Out << "[__]";
+    static ostream &printVertical(ostream &out, Node *curr) {
+        const static int width = 6;  // must be even
+        if (!curr)
+            return out << "[__]";
         // figure out the maximum depth which determines how wide the tree is
-        int MaxDepth = getHeight(Curr);
-        queue<const Node *> Q;
-        Q.push(Curr);
-        for (int Depth = 1; Depth <= MaxDepth; ++Depth) {
-            printTreeLevel(Out, Q, WIDTH, Depth, MaxDepth);
+        int maxDepth = getHeight(curr);
+        queue<const Node *> q;
+        q.push(curr);
+        for (int depth = 1; depth <= maxDepth; ++depth) {
+            printTreeLevel(out, q, width, depth, maxDepth);
         }
-        return Out;
+        return out;
     }
 
     Node *copyTree(Node *root) const {
         if (root == NULL)
             return NULL;
-        else {
-            Node *temp = new Node;
-            temp->Data = root->Data;
-            temp->Left = copyTree(root->Left);
-            temp->Right = copyTree(root->Right);
-            return temp;
-        }
+
+        Node *temp = new Node;
+        temp->Data = root->Data;
+        temp->Left = copyTree(root->Left);
+        temp->Right = copyTree(root->Right);
+        return temp;
     }
 
     Node *makeEmpty(Node *root) {
@@ -232,17 +231,18 @@ private:
 
 public:
     // Empty constructor
-    BST() {}
+    BST() = default;
 
     // Construct tree with root
     //TODO: TEST IT
-    explicit BST(const T &RootItem) {
-        add(RootItem);
+    explicit BST(const T &rootItem) {
+        add(rootItem);
     }
 
     // Construct tree from array
-    BST(const T Arr[], int N) {
-        for (auto x : Arr) {
+    //TODO: CHECK THIS OUT, NOT USING N
+    BST(const T arr[], int n) {
+        for (auto x : arr) {
             add(x);
         }
 
@@ -250,8 +250,8 @@ public:
     }
 
     // Copy constructor
-    BST(const BST<T> &Bst) {
-        Root = copyTree(Bst.Root);
+    BST(const BST<T> &bst) {
+        Root = copyTree(bst.Root);
     }
 
     // Destructor
@@ -275,13 +275,13 @@ public:
     }
 
     // Add a new item, return true if successful
-    bool add(const T &Item) {
+    bool add(const T &item) {
 
         // Create the new node
         Node *newNode = new Node;
         newNode->Left = NULL;
         newNode->Right = NULL;
-        newNode->Data = Item;
+        newNode->Data = item;
 
         // Pointers for current and parent
         Node *current;
@@ -314,7 +314,7 @@ public:
 
     // Remove item, return true if successful
     //TODO: FIX OR REMAKE IT
-    bool remove(const T &Item) {
+    bool remove(const T &item) {
 
         if (isEmpty()) {
             return false;
@@ -327,17 +327,18 @@ public:
 
         // Find the item and keep track of the parent
         while (curr != NULL) {
-            if (curr->Data == Item) {
+            if (curr->Data == item) {
                 found = true;
                 break;
-            } else {
-                parent = curr;
-                if (Item > curr->Data) {
-                    curr = curr->Right;
-                } else {
-                    curr = curr->Left;
-                }
             }
+
+            parent = curr;
+            if (item > curr->Data) {
+                curr = curr->Right;
+            } else {
+                curr = curr->Left;
+            }
+
         }
 
         // If not found return false otherwise continue.
@@ -369,10 +370,7 @@ public:
                     parent->Right = curr->Right;
                     delete curr;
                 }
-            }
-
-                // Child is on the Left
-            else {
+            } else { // Child is on the Left
                 if (parent->Left == curr) {
                     parent->Left = curr->Left;
                     delete curr;
@@ -439,7 +437,7 @@ public:
     }
 
     // true if item is in BST
-    bool contains(const T &Item) const {
+    bool contains(const T &item) const {
 
         if (isEmpty()) {
             return false;
@@ -449,14 +447,13 @@ public:
         curr = Root;
 
         while (curr != NULL) {
-            if (curr->Data == Item) {
+            if (curr->Data == item)
                 return true;
-            } else {
-                if (Item > curr->Data)
-                    curr = curr->Right;
-                else
-                    curr = curr->Left;
-            }
+
+            if (item > curr->Data)
+                curr = curr->Right;
+            else
+                curr = curr->Left;
         }
 
         return false;
@@ -464,20 +461,20 @@ public:
 
     // inorder traversal: Left-root-Right
     // takes a function that takes a single parameter of type T
-    void inOrderTraverse(void Visit(const T &Item)) const {
-        Visit(inOrder(Root));
+    void inOrderTraverse(void visit(const T &item)) const {
+        visit(inOrder(Root));
     }
 
 
     // preorder traversal: root-Left-Right
-    void preOrderTraverse(void Visit(const T &Item)) const {
-        Visit(preOrder(Root));
+    void preOrderTraverse(void visit(const T &item)) const {
+        visit(preOrder(Root));
     }
 
 
     // postorder traversal: Left-Right-root
-    void postOrderTraverse(void Visit(const T &Item)) const {
-        Visit(postOrder(Root));
+    void postOrderTraverse(void visit(const T &item)) const {
+        visit(postOrder(Root));
     }
 
 
@@ -501,15 +498,16 @@ public:
 
     // trees are equal if they have the same structure
     // AND the same item values at all the nodes
-    bool operator==(const BST<T> &Other) const {
-        return compare(Other.Root);
+    bool operator==(const BST<T> &other) const {
+        return compare(other.Root);
     }
 
     // not == to each other
-    bool operator!=(const BST<T> &Other) const {
-        return !compare(Other.Root);
+    bool operator!=(const BST<T> &other) const {
+        return !compare(other.Root);
     }
 
 
 };
-#endif  // BST_HPP
+
+#endif //BST_HPP
