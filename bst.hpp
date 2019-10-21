@@ -39,7 +39,7 @@ private:
         struct Node *Right;
     };
 
-    // refer to data type "struct Node" as Node
+    // refer to Data type "struct Node" as Node
     using Node = struct Node;
 
     // root of the tree
@@ -172,7 +172,7 @@ private:
         return NULL;
     }
 
-    int recursiveCount (Node *root) {
+    int recursiveCount(Node *root) const {
         if (root == NULL)
             return 0;
 
@@ -185,7 +185,8 @@ private:
             if (p->Left) result += inOrder(p->Left);
             result += p->Data;
             if (p->Right) result += inOrder(p->Right);
-        } else return result;
+        }
+        return result;
     }
 
     string preOrder(Node *p) const {
@@ -194,7 +195,8 @@ private:
             result += p->Data;
             if (p->Left) result += preOrder(p->Left);
             if (p->Right) result += preOrder(p->Right);
-        } else return result;
+        }
+        return result;
     }
 
     string postOrder(Node *p) const {
@@ -203,18 +205,39 @@ private:
             if (p->Left) result += postOrder(p->Left);
             if (p->Right) result += postOrder(p->Right);
             result += p->Data;
-        } else return result;
+        }
+        return result;
+    }
+
+    bool compare(Node *root) const {
+        return recursiveCompare(Root, root);
+    }
+
+    bool recursiveCompare(Node *node1, Node *node2) const {
+        bool result;
+
+        if (node1 == NULL && node2 == NULL)
+            return true;
+
+        //TODO: Null reference maybe a problem?
+        if (node1->Data != node2->Data) {
+            return false;
+        }
+
+        result = recursiveCompare(node1->Left, node2->Left)
+                 && recursiveCompare(node1->Right, node2->Right);
+
+        return result;
     }
 
 public:
     // Empty constructor
-    BST() {
-    }
+    BST() {}
 
     // Construct tree with root
+    //TODO: TEST IT
     explicit BST(const T &RootItem) {
         add(RootItem);
-
     }
 
     // Construct tree from array
@@ -231,18 +254,17 @@ public:
         Root = copyTree(Bst.Root);
     }
 
-    // destructor
+    // Destructor
     virtual ~BST() {
         makeEmpty(Root);
     }
 
-    // true if no nodes in BST
+    // Returns true if no nodes in BST
     bool isEmpty() const {
-        return (Root);
+        return (Root == NULL);
     }
 
-    // 0 if empty, 1 if only root, otherwise
-    // height of root is max height of subtrees + 1
+    // Returns height of tree
     int getHeight() const {
         return getHeight(Root);
     }
@@ -291,6 +313,7 @@ public:
     }
 
     // Remove item, return true if successful
+    //TODO: FIX OR REMAKE IT
     bool remove(const T &Item) {
 
         if (isEmpty()) {
@@ -309,10 +332,11 @@ public:
                 break;
             } else {
                 parent = curr;
-                if (Item > curr->Data)
-                    curr = curr->right;
-                else
-                    curr = curr->left;
+                if (Item > curr->Data) {
+                    curr = curr->Right;
+                } else {
+                    curr = curr->Left;
+                }
             }
         }
 
@@ -322,33 +346,38 @@ public:
         }
 
         // Node is a leaf node
-        if (curr->left == NULL && curr->right == NULL) {
+        if (curr->Left == NULL && curr->Right == NULL) {
+            if (parent->Left == curr)
+                parent->Left = NULL;
+            else
+                parent->Right = NULL;
+
             delete curr;
             return true;
         }
 
         // Node has one child
-        if ((curr->left == NULL && curr->right != NULL)
-            || (curr->left != NULL && curr->right == NULL)) {
+        if ((curr->Left == NULL && curr->Right != NULL)
+            || (curr->Left != NULL && curr->Right == NULL)) {
 
-            // Child is on the right
-            if (curr->left == NULL && curr->right != NULL) {
-                if (parent->left == curr) {
-                    parent->left = curr->right;
+            // Child is on the Right
+            if (curr->Left == NULL && curr->Right != NULL) {
+                if (parent->Left == curr) {
+                    parent->Left = curr->Right;
                     delete curr;
                 } else {
-                    parent->right = curr->right;
+                    parent->Right = curr->Right;
                     delete curr;
                 }
             }
 
-                // Child is on the left
+                // Child is on the Left
             else {
-                if (parent->left == curr) {
-                    parent->left = curr->left;
+                if (parent->Left == curr) {
+                    parent->Left = curr->Left;
                     delete curr;
                 } else {
-                    parent->right = curr->left;
+                    parent->Right = curr->Left;
                     delete curr;
                 }
             }
@@ -357,44 +386,48 @@ public:
 
 
         // Node has 2 children
-        // We must traverse to lowest value on right subtree
+        // We must traverse to lowest value on Right subtree
         if (curr->Left != NULL && curr->Right != NULL) {
             Node *checker;
             checker = curr->Right;
 
             // Right node is a leaf
             if ((checker->Left == NULL) && (checker->Right == NULL)) {
-                curr = checker;
-                delete checker;
-                curr->right = NULL;
+                if (parent->Left == curr) {
+                    parent->Left = curr->Right;
+
+                } else {
+                    parent->Right = curr->Right;
+                }
+
             }
 
                 // Right node has children
             else {
 
-                // Right subtree has left child
+                // Right subtree has Left child
                 if ((curr->Right)->Left != NULL) {
                     Node *lCurr;
                     Node *lParent;
                     lParent = curr->Right;
                     lCurr = (curr->Right)->Left;
 
-                    // Traverse to the lowest left node
+                    // Traverse to the lowest Left node
                     while (lCurr->Left != NULL) {
                         lParent = lCurr;
-                        lCurr = lCurr->left;
+                        lCurr = lCurr->Left;
                     }
 
                     curr->Data = lCurr->Data;
                     delete lCurr;
-                    lParent->left = NULL;
+                    lParent->Left = NULL;
 
-                    // Right subtree does not have a left child
+                    // Right subtree does not have a Left child
                 } else {
                     Node *temp;
-                    temp = curr->right;
-                    curr->data = temp->data;
-                    curr->right = temp->right;
+                    temp = curr->Right;
+                    curr->Data = temp->Data;
+                    curr->Right = temp->Right;
                     delete temp;
                 }
 
@@ -420,29 +453,29 @@ public:
                 return true;
             } else {
                 if (Item > curr->Data)
-                    curr = curr->right;
+                    curr = curr->Right;
                 else
-                    curr = curr->left;
+                    curr = curr->Left;
             }
         }
 
         return false;
     }
 
-    // inorder traversal: left-root-right
+    // inorder traversal: Left-root-Right
     // takes a function that takes a single parameter of type T
     void inOrderTraverse(void Visit(const T &Item)) const {
         Visit(inOrder(Root));
     }
 
 
-    // preorder traversal: root-left-right
+    // preorder traversal: root-Left-Right
     void preOrderTraverse(void Visit(const T &Item)) const {
         Visit(preOrder(Root));
     }
 
 
-    // postorder traversal: left-right-root
+    // postorder traversal: Left-Right-root
     void postOrderTraverse(void Visit(const T &Item)) const {
         Visit(postOrder(Root));
     }
@@ -451,6 +484,7 @@ public:
     // create dynamic array, copy all the items to the array
     // and then read the array to re-create this tree from scratch
     // so that resulting tree is balanced
+    //TODO: MAKE IT
     void rebalance() {
         //Get size of tree
         //Create array of that size
@@ -476,24 +510,6 @@ public:
         return !compare(Other.Root);
     }
 
-    bool compare(Node *root) const {
-        return recursiveCompare(Root, root);
-    }
 
-    bool recursiveCompare(Node *node1, Node *node2) const {
-        bool result;
-
-        if (node1 == NULL && node2 == NULL)
-            return true;
-
-        if (node1->Data != node2->Data) {
-            return false;
-        }
-
-        result = recursiveCompare(node1->Left, node2->Left)
-                 && recursiveCompare(node1->Right, node2->Right);
-
-        return result;
-    }
 };
 #endif  // BST_HPP

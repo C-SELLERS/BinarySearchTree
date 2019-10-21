@@ -168,19 +168,79 @@ void testSample01() {
   for (auto &S : vector<string>{"c", "a", "f", "g", "x"})
     B1.add(S);
 
-  for (auto &S : vector<string>{"c", "f", "a", "g", "x"})
+  cout << "Tree 1" << endl;
+  cout << B1 << endl;
+
+  cout << "Height Test" << endl;
+  int height = B1.getHeight();
+  assert(height == 4);
+  cout << "Height Success" << endl;
+
+  cout << "Number of Nodes" << endl;
+  int nodes = B1.numberOfNodes();
+  assert(nodes == 5);
+  cout << "Number of Nodes Success" << endl;
+
+  cout << "Clear Test" << endl;
+  B1.clear();
+  cout << B1 << endl;
+  cout << "Clear Success" << endl;
+
+  cout << "Height Test" << endl;
+  height = B1.getHeight();
+  assert(height == 0);
+  cout << "Height Success" << endl;
+
+  cout << "Number of Nodes" << endl;
+  nodes = B1.numberOfNodes();
+  assert(nodes == 0);
+  cout << "Number of Nodes Success" << endl;
+
+
+  for (auto &S : vector<string>{"c", "f", "a", "g", "x", "d", "e"})
     B2.add(S);
 
-  assert()
+  cout << "Tree 2" << endl;
+  cout << B2 << endl;
 
+  cout << "Contains Test" << endl;
+  bool contains = B1.contains("a");
+  assert(contains);
+  cout << "Contains Success" << endl;
+
+
+  cout << "Remove Test" << endl;
+  cout << "Remove a" << endl;
+  bool remove = B2.remove("a");
+  assert(remove);
+  cout << B2 << endl;
+  cout << "Remove a Success" << endl;
+
+  cout << "Remove f" << endl;
+  remove = B2.remove("f");
+  assert(remove);
+  cout << B2 << endl;
+  cout << "Remove f Success" << endl;
+
+  cout << "Remove g" << endl;
+  remove = B2.remove("g");
+  assert(remove);
+  cout << B2 << endl;
+  cout << "Remove g Success" << endl;
+
+  cout << "Remove something not in the tree Z" << endl;
+  remove = B2.remove("Z");
+  assert(!remove);
+  cout << B2 << endl;
+  cout << "Remove Z Failed = GOOD!" << endl;
 
   cout << "Ending testSample01" << endl;
 }
 
 // Calling all test functions
 void testBSTAll() {
-  testPisan01();
-  testPisan02();
-  testPisan03();
+  //testPisan01();
+  //testPisan02();
+  //testPisan03();
   testSample01();
 }
