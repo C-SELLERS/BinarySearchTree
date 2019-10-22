@@ -160,7 +160,7 @@ private:
         return temp;
     }
 
-    Node *makeEmpty(Node *root) {
+    Node *makeEmpty(Node *root) const {
         if (root == NULL)
             return NULL;
         {
@@ -215,13 +215,11 @@ private:
     bool recursiveCompare(Node *node1, Node *node2) const {
         bool result;
 
-        if (node1 == NULL && node2 == NULL)
-            return true;
+        if (node1 == NULL && node2 == NULL) return true;
 
-        //TODO: Null reference maybe a problem?
-        if (node1->Data != node2->Data) {
-            return false;
-        }
+        if (node2 == NULL || node1 == NULL) return false;
+
+        if (node1->Data != node2->Data) return false;
 
         result = recursiveCompare(node1->Left, node2->Left)
                  && recursiveCompare(node1->Right, node2->Right);
@@ -240,10 +238,9 @@ public:
     }
 
     // Construct tree from array
-    //TODO: CHECK THIS OUT, NOT USING N
     BST(const T arr[], int n) {
-        for (auto x : arr) {
-            add(x);
+        for (int i = 0; i < n; i++) {
+            add(arr[i]);
         }
 
         rebalance();
@@ -478,16 +475,51 @@ public:
     }
 
 
-    // create dynamic array, copy all the items to the array
-    // and then read the array to re-create this tree from scratch
-    // so that resulting tree is balanced
-    //TODO: MAKE IT
+    // Rebalances the tree
     void rebalance() {
-        //Get size of tree
-        //Create array of that size
-        //Copy all items to that array
-        //Balance it (Private method?)
 
+        // make dynamic array that is the size of the tree
+        int size = numberOfNodes();
+        Node *nodes;
+        nodes = new Node[size];
+
+        // read to the array
+        readToArray(Root, nodes, 0);
+
+        // empty the old tree
+        clear();
+
+        // build the new one
+        Root = recursiveRebalance(nodes, 0, size - 1);
+    }
+
+    // read the current tree of nodes to an array
+    void readToArray(Node *node, Node *array, int index) {
+        if (node == NULL) return;
+        readToArray(node->Left, array, index);
+        array[index++] = *node;
+        readToArray(node->Right, array, index);
+    }
+
+    //Recursive function to rebalance the tree
+    Node *recursiveRebalance(Node *nodes, int start,
+                             int end) {
+        if (start > end)
+            return NULL;
+
+        //Make mid the root
+        int mid = (start + end) / 2;
+        Node *newNode = new Node;
+        newNode->Left = NULL;
+        newNode->Right = NULL;
+        newNode->Data = nodes[mid].Data;
+
+
+        //Construct inOrder
+        newNode->Left = recursiveRebalance(nodes, start, mid - 1);
+        newNode->Right = recursiveRebalance(nodes, mid + 1, end);
+
+        return newNode;
     }
 
     // delete all nodes in tree
