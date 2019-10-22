@@ -227,6 +227,35 @@ private:
         return result;
     }
 
+    // read the current tree of nodes to an array
+    void readToArray(Node *node, Node *array, int index) {
+        if (node == NULL) return;
+        readToArray(node->Left, array, index);
+        array[index++] = *node;
+        readToArray(node->Right, array, index);
+    }
+
+    //Recursive function to rebalance the tree
+    Node *recursiveRebalance(Node *nodes, int start,
+                             int end) {
+        if (start > end)
+            return NULL;
+
+        //Make mid the root
+        int mid = (start + end) / 2;
+        Node *newNode = new Node;
+        newNode->Left = NULL;
+        newNode->Right = NULL;
+        newNode->Data = nodes[mid].Data;
+
+
+        //Construct inOrder
+        newNode->Left = recursiveRebalance(nodes, start, mid - 1);
+        newNode->Right = recursiveRebalance(nodes, mid + 1, end);
+
+        return newNode;
+    }
+
 public:
     // Empty constructor
     BST() = default;
@@ -309,129 +338,59 @@ public:
         return true;
     }
 
-    // Remove item, return true if successful
-    //TODO: FIX OR REMAKE IT
-    bool remove(const T &item) {
+    Node *findMin(Node *root) {
+        Node *current = root;
 
-        if (isEmpty()) {
-            return false;
-        }
+        while (current && current->Left != NULL)
+            current = current->Left;
 
-        bool found = false;
-        Node *curr;
-        Node *parent = NULL;
-        curr = Root;
-
-        // Find the item and keep track of the parent
-        while (curr != NULL) {
-            if (curr->Data == item) {
-                found = true;
-                break;
-            }
-
-            parent = curr;
-            if (item > curr->Data) {
-                curr = curr->Right;
-            } else {
-                curr = curr->Left;
-            }
-
-        }
-
-        // If not found return false otherwise continue.
-        if (!found) {
-            return false;
-        }
-
-        // Node is a leaf node
-        if (curr->Left == NULL && curr->Right == NULL) {
-            if (parent->Left == curr)
-                parent->Left = NULL;
-            else
-                parent->Right = NULL;
-
-            delete curr;
-            return true;
-        }
-
-        // Node has one child
-        if ((curr->Left == NULL && curr->Right != NULL)
-            || (curr->Left != NULL && curr->Right == NULL)) {
-
-            // Child is on the Right
-            if (curr->Left == NULL && curr->Right != NULL) {
-                if (parent->Left == curr) {
-                    parent->Left = curr->Right;
-                    delete curr;
-                } else {
-                    parent->Right = curr->Right;
-                    delete curr;
-                }
-            } else { // Child is on the Left
-                if (parent->Left == curr) {
-                    parent->Left = curr->Left;
-                    delete curr;
-                } else {
-                    parent->Right = curr->Left;
-                    delete curr;
-                }
-            }
-            return true;
-        }
-
-
-        // Node has 2 children
-        // We must traverse to lowest value on Right subtree
-        if (curr->Left != NULL && curr->Right != NULL) {
-            Node *checker;
-            checker = curr->Right;
-
-            // Right node is a leaf
-            if ((checker->Left == NULL) && (checker->Right == NULL)) {
-                if (parent->Left == curr) {
-                    parent->Left = curr->Right;
-
-                } else {
-                    parent->Right = curr->Right;
-                }
-
-            }
-
-                // Right node has children
-            else {
-
-                // Right subtree has Left child
-                if ((curr->Right)->Left != NULL) {
-                    Node *lCurr;
-                    Node *lParent;
-                    lParent = curr->Right;
-                    lCurr = (curr->Right)->Left;
-
-                    // Traverse to the lowest Left node
-                    while (lCurr->Left != NULL) {
-                        lParent = lCurr;
-                        lCurr = lCurr->Left;
-                    }
-
-                    curr->Data = lCurr->Data;
-                    delete lCurr;
-                    lParent->Left = NULL;
-
-                    // Right subtree does not have a Left child
-                } else {
-                    Node *temp;
-                    temp = curr->Right;
-                    curr->Data = temp->Data;
-                    curr->Right = temp->Right;
-                    delete temp;
-                }
-
-            }
-            return true;
-        }
-
-        return false;
+        return current;
     }
+
+    Node *recursiveRemove(Node *root, T item) {
+        //base case
+        if (root == NULL) return root;
+
+        // if key smaller go left
+        if (item < root->Data)
+            root->Left = recursiveRemove(root->Left, item);
+
+            // if greater go right
+        else if (item > root->Data)
+            root->Right = recursiveRemove(root->Right, item);
+
+            // they are the same value meaning delete this one
+        else {
+            // if only one child on left
+            if (root->Left == NULL) {
+                Node *temp = root->Right;
+                return temp;
+            }
+                // if only one child on right
+            else if (root->Right == NULL) {
+                Node *temp = root->Left;
+                return temp;
+            }
+
+            // if two children get the smallest on right
+            Node *temp = findMin(root->Right);
+
+            // copy the new root to this node
+            root->Data = temp->Data;
+
+            // Delete its old location
+            root->Right = recursiveRemove(root->Right, temp->Data);
+        }
+        return root;
+    }
+    // Remove item, return true if successful
+    bool remove(const T &item) {
+        recursiveRemove(Root, item);
+        return !contains(item);
+    }
+
+
+
 
     // true if item is in BST
     bool contains(const T &item) const {
@@ -491,36 +450,10 @@ public:
 
         // build the new one
         Root = recursiveRebalance(nodes, 0, size - 1);
+
+        delete[] nodes;
     }
 
-    // read the current tree of nodes to an array
-    void readToArray(Node *node, Node *array, int index) {
-        if (node == NULL) return;
-        readToArray(node->Left, array, index);
-        array[index++] = *node;
-        readToArray(node->Right, array, index);
-    }
-
-    //Recursive function to rebalance the tree
-    Node *recursiveRebalance(Node *nodes, int start,
-                             int end) {
-        if (start > end)
-            return NULL;
-
-        //Make mid the root
-        int mid = (start + end) / 2;
-        Node *newNode = new Node;
-        newNode->Left = NULL;
-        newNode->Right = NULL;
-        newNode->Data = nodes[mid].Data;
-
-
-        //Construct inOrder
-        newNode->Left = recursiveRebalance(nodes, start, mid - 1);
-        newNode->Right = recursiveRebalance(nodes, mid + 1, end);
-
-        return newNode;
-    }
 
     // delete all nodes in tree
     void clear() {

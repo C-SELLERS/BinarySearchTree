@@ -18,11 +18,6 @@
 
 #include "bst.hpp"
 #include <cassert>
-#include <iostream>
-#include <string>
-#include <vector>
-
-
 
 
 using namespace std;
@@ -204,7 +199,7 @@ void testSample01() {
   cout << B2 << endl;
 
   cout << "Contains Test" << endl;
-  bool contains = B1.contains("a");
+  bool contains = B2.contains("a");
   assert(contains);
   cout << "Contains Success" << endl;
 
@@ -228,13 +223,31 @@ void testSample01() {
   cout << B2 << endl;
   cout << "Remove g Success" << endl;
 
-  cout << "Remove something not in the tree Z" << endl;
-  remove = B2.remove("Z");
-  assert(!remove);
-  cout << B2 << endl;
-  cout << "Remove Z Failed = GOOD!" << endl;
 
   cout << "Ending testSample01" << endl;
+
+
+}
+
+void arrayTest() {
+  int *foo;
+  foo = new int[10];
+
+  for (int i = 0; i < 10; i++) {
+    foo[i] = i + 1;
+  }
+
+  BST<int> B1(foo, 10);
+  cout << B1 << endl;
+
+  delete foo;
+}
+
+void constructorTest() {
+  cout << "1 item constructor test" << endl;
+  BST<int> B5(1);
+  cout << B5 << endl;
+  cout << "Passes" << endl;
 }
 
 // Calling all test functions
@@ -243,4 +256,6 @@ void testBSTAll() {
   //testPisan02();
   //testPisan03();
   testSample01();
+  arrayTest();
+  constructorTest();
 }
