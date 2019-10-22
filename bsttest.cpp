@@ -252,9 +252,9 @@ void constructorTest() {
 
 // Calling all test functions
 void testBSTAll() {
-  //testPisan01();
-  //testPisan02();
-  //testPisan03();
+  testPisan01();
+  testPisan02();
+  testPisan03();
   testSample01();
   arrayTest();
   constructorTest();
