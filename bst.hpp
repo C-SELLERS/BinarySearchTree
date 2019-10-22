@@ -1,5 +1,5 @@
-// Yusuf Pisan pisan@uw.edu
-// 15 Jan 2018
+// Colton Sellers
+// 20 Oct 2019
 
 // BST class
 // Creates a BST to store values
@@ -149,6 +149,7 @@ private:
         return out;
     }
 
+    // Recursively copies the tree
     Node *copyTree(Node *root) const {
         if (root == NULL)
             return NULL;
@@ -160,6 +161,7 @@ private:
         return temp;
     }
 
+    // Recursively empties the tree
     Node *makeEmpty(Node *root) const {
         if (root == NULL)
             return NULL;
@@ -171,6 +173,7 @@ private:
         return NULL;
     }
 
+    // recursive helper function for counting the nodes
     int recursiveCount(Node *root) const {
         if (root == NULL)
             return 0;
@@ -178,6 +181,7 @@ private:
         return recursiveCount(root->Left) + recursiveCount(root->Right) + 1;
     }
 
+    // traverses the tree inOrder
     string inOrder(Node *p) const {
         string result;
         if (p != NULL) {
@@ -188,6 +192,7 @@ private:
         return result;
     }
 
+    // traverses the tree preOrder
     string preOrder(Node *p) const {
         string result;
         if (p != NULL) {
@@ -198,6 +203,7 @@ private:
         return result;
     }
 
+    // traverses the tree postOrder
     string postOrder(Node *p) const {
         string result;
         if (p != NULL) {
@@ -208,10 +214,12 @@ private:
         return result;
     }
 
+    // compare the trees and return false if they are different
     bool compare(Node *root) const {
         return recursiveCompare(Root, root);
     }
 
+    // recursive helper for comparing all nodes
     bool recursiveCompare(Node *node1, Node *node2) const {
         bool result;
 
@@ -249,11 +257,60 @@ private:
         newNode->Data = nodes[mid].Data;
 
 
-        //Construct inOrder
+        // Construct inOrder
         newNode->Left = recursiveRebalance(nodes, start, mid - 1);
         newNode->Right = recursiveRebalance(nodes, mid + 1, end);
 
         return newNode;
+    }
+
+    // Recursive helper for removing a node
+    Node *recursiveRemove(Node *root, T item) {
+        //base case
+        if (root == NULL) return root;
+
+        // if smaller go left
+        if (item < root->Data)
+            root->Left = recursiveRemove(root->Left, item);
+
+            // if greater go right
+        else if (item > root->Data)
+            root->Right = recursiveRemove(root->Right, item);
+
+            // they are the same value meaning delete this one
+        else {
+
+            // if only one child on left
+            if (root->Left == NULL) {
+                Node *temp = root->Right;
+                return temp;
+            }
+                // if only one child on right
+            else if (root->Right == NULL) {
+                Node *temp = root->Left;
+                return temp;
+            }
+
+            // if two children get the smallest on right
+            Node *temp = findMin(root->Right);
+
+            // copy the new root to this node
+            root->Data = temp->Data;
+
+            // Delete its old location
+            root->Right = recursiveRemove(root->Right, temp->Data);
+        }
+        return root;
+    }
+
+    // Used to find the smallest value in a tree
+    Node *findMin(Node *root) {
+        Node *current = root;
+
+        while (current && current->Left != NULL)
+            current = current->Left;
+
+        return current;
     }
 
 public:
@@ -261,7 +318,6 @@ public:
     BST() = default;
 
     // Construct tree with root
-    //TODO: TEST IT
     explicit BST(const T &rootItem) {
         add(rootItem);
     }
@@ -338,59 +394,12 @@ public:
         return true;
     }
 
-    Node *findMin(Node *root) {
-        Node *current = root;
 
-        while (current && current->Left != NULL)
-            current = current->Left;
-
-        return current;
-    }
-
-    Node *recursiveRemove(Node *root, T item) {
-        //base case
-        if (root == NULL) return root;
-
-        // if key smaller go left
-        if (item < root->Data)
-            root->Left = recursiveRemove(root->Left, item);
-
-            // if greater go right
-        else if (item > root->Data)
-            root->Right = recursiveRemove(root->Right, item);
-
-            // they are the same value meaning delete this one
-        else {
-            // if only one child on left
-            if (root->Left == NULL) {
-                Node *temp = root->Right;
-                return temp;
-            }
-                // if only one child on right
-            else if (root->Right == NULL) {
-                Node *temp = root->Left;
-                return temp;
-            }
-
-            // if two children get the smallest on right
-            Node *temp = findMin(root->Right);
-
-            // copy the new root to this node
-            root->Data = temp->Data;
-
-            // Delete its old location
-            root->Right = recursiveRemove(root->Right, temp->Data);
-        }
-        return root;
-    }
     // Remove item, return true if successful
     bool remove(const T &item) {
         recursiveRemove(Root, item);
         return !contains(item);
     }
-
-
-
 
     // true if item is in BST
     bool contains(const T &item) const {
@@ -415,20 +424,19 @@ public:
         return false;
     }
 
-    // inorder traversal: Left-root-Right
-    // takes a function that takes a single parameter of type T
+    // inOrder traversal: Left-root-Right
     void inOrderTraverse(void visit(const T &item)) const {
         visit(inOrder(Root));
     }
 
 
-    // preorder traversal: root-Left-Right
+    // preOrder traversal: root-Left-Right
     void preOrderTraverse(void visit(const T &item)) const {
         visit(preOrder(Root));
     }
 
 
-    // postorder traversal: Left-Right-root
+    // postOrder traversal: Left-Right-root
     void postOrderTraverse(void visit(const T &item)) const {
         visit(postOrder(Root));
     }
@@ -471,8 +479,6 @@ public:
     bool operator!=(const BST<T> &other) const {
         return !compare(other.Root);
     }
-
-
 };
 
 #endif //BST_HPP
